@@ -19,12 +19,12 @@ class LoginView {
 	 *
 	 * @return  void BUT writes to standard output and cookies!
 	 */
-	public function response() {
-		$message = '';
+	public function response($isLoggedIn, $message) {
+		if ($isLoggedIn){
+			return $this->generateLogoutButtonHTML($message);
+		}
 		
-		$response = $this->generateLoginFormHTML($message);
-		//$response .= $this->generateLogoutButtonHTML($message);
-		return $response;
+		return $this->generateLoginFormHTML($message);
 	}
 
 	/**
@@ -67,10 +67,40 @@ class LoginView {
 			</form>
 		';
 	}
+
+	public function isLoginAttempted(){
+		if (isset($_REQUEST[self::$login])) {
+			return true;
+		}
+		return false;
+	}
+
+	public function isUsernameSet(){
+		if (isset($_REQUEST[self::$name])){
+			return true;
+		}
+		return false;
+	}
+
+	public function isPasswordSet(){
+		if (isset($_REQUEST[self::$password])){
+			return true;
+		}
+		return false;
+	}
 	
 	//CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
-	private function getRequestUserName() {
+	public function getRequestUserName(){
 		//RETURN REQUEST VARIABLE: USERNAME
+		return $_REQUEST[self::$name];
 	}
+
+	public function getRequestPassword(){
+		//RETURN REQUEST VARIABLE: USERNAME
+		
+		return "qwertt";
+		return $_REQUEST[self::$password];
+	}
+	
 	
 }
