@@ -3,6 +3,9 @@
 
 class LayoutView {
   
+  //Views inherit from View with abstract method response????
+  //param: LoginView $v CHANGE TO: $v
+  //$v can be RegisterView, LoginView, LogoutView 
   public function render($message, $isLoggedIn, LoginView $v, DateTimeView $dtv) {
     echo '<!DOCTYPE html>
       <html>

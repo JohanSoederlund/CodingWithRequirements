@@ -11,13 +11,6 @@ ini_set('display_errors', 'On');
 
 //CREATE OBJECTS OF THE VIEWS
 
-if (!isset($_SESSION['count'])) {
-  $_SESSION['count'] = 0;
-} else {
-  $_SESSION['count']++;
-}
-echo $_SESSION["count"];
-
 
 try {
 

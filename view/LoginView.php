@@ -68,39 +68,47 @@ class LoginView {
 		';
 	}
 
-	public function isLoginAttempted(){
-		if (isset($_REQUEST[self::$login])) {
-			return true;
-		}
-		return false;
+	public function loginAttempted() {
+		return isset($_REQUEST[self::$login]);
 	}
 
-	public function isUsernameSet(){
-		if (isset($_REQUEST[self::$name])){
-			return true;
-		}
-		return false;
-	}
-
-	public function isPasswordSet(){
-		if (isset($_REQUEST[self::$password])){
-			return true;
-		}
-		return false;
+	public function logoutAttempted() {
+		return isset($_REQUEST[self::$logout]);
 	}
 	
 	//CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
 	public function getRequestUserName(){
 		//RETURN REQUEST VARIABLE: USERNAME
-		return $_REQUEST[self::$name];
+		if (isset ($_REQUEST[self::$name])){
+			return $_REQUEST[self::$name];
+		}
+		throw new Exception("No request username available");
 	}
 
 	public function getRequestPassword(){
-		//RETURN REQUEST VARIABLE: USERNAME
-		
-		return "qwertt";
-		return $_REQUEST[self::$password];
+		if (isset ($_REQUEST[self::$password])) {
+			return $_REQUEST[self::$password];
+		}
+		throw new Exception("No request username available");
 	}
+/*
+getRequestCookieName() or getCookieName()
+	public function getRequestCookieName(){
+		return $_REQUEST[self::$cookieName];
+		return self::$cookieName;
+	}
+getRequestCookiePassword or getCookiePassword
+	public function getRequestCookiePassword(){
+		return $_REQUEST[self::$cookiePassword];
+		return self::$cookiePassword;
+	}
+	*/
+
+	public function keepLoggedIn(){
+		return isset($_REQUEST[self::$keep]);
+	}
+
+	//private static $messageId = 'LoginView::Message';
 	
 	
 }

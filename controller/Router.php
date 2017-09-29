@@ -4,14 +4,20 @@ require_once('view/LoginView.php');
 require_once('view/DateTimeView.php');
 require_once('view/LayoutView.php');
 
+require_once('model/Session.php');
+require_once('model/User.php');
 require_once('model/StoreUser.php');
 
 class Router {
-
-    /*private $v = new LoginView();
-    private $dtv = new DateTimeView();
-    private $lv = new LayoutView();
-    private $storeUser = new StoreUser();*/
+    //TODO
+    //private static logedIn = 'Router::LogedIn'; //or true/false???
+    //logedIn == true, is actually a by-product of session-timeleft > 0;
+    private $loginView;
+    private $dateTimeView;
+    private $layoutView;
+    private $storeUser;
+    private $User;
+    private $session;
 
    
     function __construct() {
@@ -19,14 +25,20 @@ class Router {
     }
 
     private function render() {
-        $v = new LoginView();
-        $dtv = new DateTimeView();
-        $lv = new LayoutView();
+        $loginView = new LoginView();
+        $dateTimeView = new DateTimeView();
+        $layoutView = new LayoutView();
+        $storeUser = new StoreUser();
+        
+
         
         $message = "";
+        //TODO: change hardcoded, $loginView->getLogin ... 
         if (!isset($_SESSION['loggedIn'])) {
             $_SESSION['loggedIn'] = false;
         } 
+
+        /*
         if($_SESSION['loggedIn'] === false) {
 
             if (isset($_REQUEST["LoginView::Login"])) {
@@ -58,23 +70,48 @@ class Router {
                 $message = "Bye bye!";
             }
             
-        }
+        }*/
+
+        if ($loginView->loginAttempted()) {
+            $user = new User($loginView->getRequestUserName(), $loginView->getRequestPassword());
+            if ($user->invalidCredentials()) {
+                $message = $user->getMeassgae();
+            } else {
+                //change to param USER
+                $session = new Session($loginView->getRequestUserName(), $loginView->getRequestPassword(), $loginView->keepLoggedIn());
+            }
+            
+        } elseif ($loginView->logoutAttempted()) {
+            //TODO: terminate user-part of session
+            $session->terminate();
+        } /*elseif ($registerView->registerAttempted()) {
+            //todo
+        }*/
         
-        $lv->render($message, $_SESSION['loggedIn'], $v, $dtv); 
+        $layoutView->render($message, $_SESSION['loggedIn'], $loginView, $dateTimeView); 
+        
         
         var_dump($_SESSION);
         var_dump($_REQUEST);
+        
     }
     
 
     private function login() {
-        $storeUser = new StoreUser();
+        //get $loginView->UserName
         if ($_REQUEST["LoginView::UserName"] === $storeUser->getUserName() 
         && $_REQUEST["LoginView::Password"] === $storeUser->getPassword()) {
             $_SESSION['loggedIn'] = true;
+            $_SESSION['UserName'] = true;
+
+
+            //LoginView::Login=login&LoginView::UserName=Admin&LoginView::Password=
             return true;
         }
         return false;
+    }
+    private function register() {
+
     }
 
 }
