@@ -6,7 +6,7 @@ require_once('view/LayoutView.php');
 
 require_once('model/Session.php');
 require_once('model/User.php');
-require_once('model/StoreUser.php');
+
 
 class Router {
     //TODO
@@ -15,7 +15,7 @@ class Router {
     private $loginView;
     private $dateTimeView;
     private $layoutView;
-    private $storeUser;
+    
     private $User;
     private $session;
 
@@ -28,91 +28,57 @@ class Router {
         $loginView = new LoginView();
         $dateTimeView = new DateTimeView();
         $layoutView = new LayoutView();
-        $storeUser = new StoreUser();
-        
-
-        
+        $session = new Session();
+        //session_set_cookie_params('o, /', 'http://johansoederlund.000webhostapp.com', isset($_SERVER["HTTP"]), true);
         $message = "";
         //TODO: change hardcoded, $loginView->getLogin ... 
         if (!isset($_SESSION['loggedIn'])) {
             $_SESSION['loggedIn'] = false;
         } 
-
-        /*
-        if($_SESSION['loggedIn'] === false) {
-
-            if (isset($_REQUEST["LoginView::Login"])) {
-
-                if (isset($_REQUEST["LoginView::UserName"]) && $_REQUEST["LoginView::UserName"] !== "") {
-
-                    if (isset($_REQUEST["LoginView::Password"]) && $_REQUEST["LoginView::Password"] !== "") {
-
-                        if($this->login()) {
-                            $message = "Welcome";
-                        } else {
-                            $message = "Wrong name or password";
-                        }
-
-                    } else {
-                        $message = "Password is missing";
-                    }
-
-                } else {
-                    $message = "Username is missing";
-                }
-                
-            }
-
-        } else {
-
-            if (isset($_REQUEST["LoginView::Logout"])) {
-                $_SESSION['loggedIn'] = false;
-                $message = "Bye bye!";
-            }
-            
-        }*/
-
-        if ($loginView->loginAttempted()) {
-            $user = new User($loginView->getRequestUserName(), $loginView->getRequestPassword());
-            if ($user->invalidCredentials()) {
-                $message = $user->getMeassgae();
+        if (isset($_SERVER['QUERY_STRING'])) {
+            if ($_SERVER['QUERY_STRING'] === "register=1") {
+                $register = true;
             } else {
-                //change to param USER
-                $session = new Session($loginView->getRequestUserName(), $loginView->getRequestPassword(), $loginView->keepLoggedIn());
+                $register = false;
+            }
+        } else {
+            $register = false;
+        }
+         
+        if ($loginView->loginAttempted() && !$_SESSION['loggedIn']) {
+            $user = new User($loginView->getRequestUserName(), $loginView->getRequestPassword(), "", false, $loginView->keepLoggedIn());
+            if ($user->getInvalidCredentials()) {
+                $message = $user->getMessage();
+                $session->setUser($loginView->getRequestUserName());
+            } else {
+                $message = $user->getMessage();
+                $session->setLogedInUser($loginView->getRequestUserName(), $loginView->getRequestPassword(), $loginView->keepLoggedIn());
             }
             
-        } elseif ($loginView->logoutAttempted()) {
+        } elseif ($loginView->logoutAttempted() && $_SESSION['loggedIn']) {
             //TODO: terminate user-part of session
+            $message = "Bye bye!";
             $session->terminate();
-        } /*elseif ($registerView->registerAttempted()) {
-            //todo
-        }*/
-        
-        $layoutView->render($message, $_SESSION['loggedIn'], $loginView, $dateTimeView); 
-        
-        
-        var_dump($_SESSION);
-        var_dump($_REQUEST);
-        
-    }
-    
-
-    private function login() {
-        //get $loginView->UserName
-        if ($_REQUEST["LoginView::UserName"] === $storeUser->getUserName() 
-        && $_REQUEST["LoginView::Password"] === $storeUser->getPassword()) {
-            $_SESSION['loggedIn'] = true;
-            $_SESSION['UserName'] = true;
-
-
-            //LoginView::Login=login&LoginView::UserName=Admin&LoginView::Password=
-            return true;
+        } elseif ($loginView->registerAttempted()) {
+            //Todo try to register
+            $user = new User($loginView->getRequestRegisterUserName(), $loginView->getRequestRegisterPassword(), $loginView->getRequestRepeatPassword(), true, false);
+            var_dump($user->getInvalidCredentials());
+            var_dump($user->getMessage());
+            if ($user->getInvalidCredentials()) {
+                $message = $user->getMessage();
+            } else {
+                $message = $user->getMessage();
+                //change to param USER
+                $_SERVER['QUERY_STRING'] = "";
+                $register = false;
+            }
+        } 
+        else if ($session->isLogedInCookieValid() && !$_SESSION['loggedIn']) {
+            $session->logInWithCookies();
+            $message = "Welcome back with cookie";
         }
-        return false;
+        
+        $layoutView->render($message, $register, $_SESSION['loggedIn'], $loginView, $dateTimeView); 
     }
-    private function register() {
-
-    }
-
 }
 

@@ -12,9 +12,9 @@ ini_set('display_errors', 'On');
 //CREATE OBJECTS OF THE VIEWS
 
 
-try {
+try { 
 
-    new Router();
+    $router = new Router();
 } catch (Exception $e) {
     echo 'Caught exception: ',  $e->getMessage(), "\n";
 }
