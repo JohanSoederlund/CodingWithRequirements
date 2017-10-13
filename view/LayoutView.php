@@ -57,10 +57,6 @@ class LayoutView {
   }
 
   private function renderLink() {
-   // $query_string = 'foo=' . urlencode($foo) . '&bar=' . urlencode($bar);
-    //echo '<a href="index?' . htmlentities("register=1") . '">';
-    var_dump($_SERVER['QUERY_STRING']);
-    var_dump($_REQUEST);
     if (isset($_SERVER['QUERY_STRING']) ) {
       if ($_SERVER['QUERY_STRING'] == "register") {
         return '<a href="index.php?">Back to login</a>';
