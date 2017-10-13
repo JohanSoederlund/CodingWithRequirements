@@ -3,18 +3,20 @@
 
 class LayoutView {
 
-  private $formTemplates;
+  private $loginView;
+  private $registerView;
   private $dateTimeView;
   private $session;
 
-  public function __construct (FormTemplates $formTemplates, DateTimeView $dateTimeView, Session $session) {
-    $this->formTemplates = $formTemplates;
+  public function __construct (LoginView $loginView, RegisterView $registerView, DateTimeView $dateTimeView, Session $session) {
+    $this->loginView = $loginView;
+    $this->registerView = $registerView;
     $this->dateTimeView = $dateTimeView;
     $this->session = $session;
   }
 
   public function renderRegister() {
-    $form = $this->formTemplates->generateRegisterFormHTML($this->session->getMessage());
+    $form = $this->registerView->generateRegisterFormHTML($this->session->getMessage());
     // $query_string = 'foo=' . urlencode($foo) . '&bar=' . urlencode($bar);
     //echo '<a href="index?' . htmlentities("register=1") . '">';
     $link = '<a href="?">Back to login</a>';
@@ -22,13 +24,13 @@ class LayoutView {
   }
 
   public function renderLogOut() {
-    $form = $this->formTemplates->generateLogoutButtonFormHTML($this->session->getMessage());
+    $form = $this->loginView->generateLogoutButtonFormHTML($this->session->getMessage());
     $link = "";
     $this->render($link, $form);
   }
   
   public function renderLogIn() {
-    $form = $this->formTemplates->generateLoginFormHTML($this->session->getMessage());
+    $form = $this->loginView->generateLoginFormHTML($this->session->getMessage());
     $link = "<a href='?register=1'>Register a new user</a>";
     $this->render($link, $form);
   }
