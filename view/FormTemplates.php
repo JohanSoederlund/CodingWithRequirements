@@ -1,6 +1,6 @@
 <?php
 
-class LoginView {
+class FormTemplates {
 	private static $login = 'LoginView::Login';
 	private static $register = 'RegisterView::Register';
 	private static $logout = 'LoginView::Logout';
@@ -15,28 +15,12 @@ class LoginView {
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
 
+	public function __construct(){
+		
+	}
 	
 
-	/**
-	 * Create HTTP response
-	 *
-	 * Should be called after a login attempt has been determined
-	 *
-	 * @return  void BUT writes to standard output and cookies!
-	 */
-	public function response($register, $isLoggedIn, $message) {
-		
-		if ($register) {
-			return $this->generateRegisterFormHTML($message);
-		}
-		else if ($isLoggedIn){
-			return $this->generateLogoutButtonHTML($message);
-		} else {
-			return $this->generateLoginFormHTML($message);
-		}
-	}
-
-	private function generateRegisterFormHTML($message) {
+	public function generateRegisterFormHTML($message) {
 		return '
 			<form method="post" > 
 				<fieldset>
@@ -63,7 +47,7 @@ class LoginView {
 	* @param $message, String output message
 	* @return  void, BUT writes to standard output!
 	*/
-	private function generateLogoutButtonHTML($message) {
+	public function generateLogoutButtonFormHTML($message) {
 		return '
 			<form  method="post" >
 				<p id="' . self::$messageId . '">' . $message .'</p>
@@ -71,13 +55,17 @@ class LoginView {
 			</form>
 		';
 	}
+
+	public function getLoginForm(){
+		return "";
+	}
 	
 	/**
 	* Generate HTML code on the output buffer for the logout button
 	* @param $message, String output message
 	* @return  void, BUT writes to standard output!
 	*/
-	private function generateLoginFormHTML($message) {
+	public function generateLoginFormHTML($message) : string {
 		return '
 			<form method="post" > 
 				<fieldset>
@@ -97,6 +85,13 @@ class LoginView {
 				</fieldset>
 			</form>
 		';
+	}
+
+	public function keepLoggedIn() {
+		if (isset($_REQUEST[self::$keep])) {
+			return true;
+		}
+		return false;
 	}
 
 	public function loginAttempted() {
@@ -160,9 +155,7 @@ getRequestCookiePassword or getCookiePassword
 	}
 	*/
 
-	public function keepLoggedIn(){
-		return isset($_REQUEST[self::$keep]);
-	}
+
 
 	//private static $messageId = 'LoginView::Message';
 	

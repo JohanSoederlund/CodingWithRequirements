@@ -2,47 +2,80 @@
 
 
 class LayoutView {
+
+  private $formTemplates;
+  private $dateTimeView;
+  private $session;
+
+  public function __construct (FormTemplates $formTemplates, DateTimeView $dateTimeView, Session $session) {
+    $this->formTemplates = $formTemplates;
+    $this->dateTimeView = $dateTimeView;
+    $this->session = $session;
+  }
+
+  public function renderRegister() {
+    $form = $this->formTemplates->generateRegisterFormHTML($this->session->getMessage());
+    // $query_string = 'foo=' . urlencode($foo) . '&bar=' . urlencode($bar);
+    //echo '<a href="index?' . htmlentities("register=1") . '">';
+    $link = '<a href="?">Back to login</a>';
+    $this->render($link, $form);
+  }
+
+  public function renderLogOut() {
+    $form = $this->formTemplates->generateLogoutButtonFormHTML($this->session->getMessage());
+    $link = "";
+    $this->render($link, $form);
+  }
   
-  //Views inherit from View with abstract method response????
-  //param: LoginView $v CHANGE TO: $v
-  //$v can be RegisterView, LoginView, LogoutView 
-  public function render($message, $register, $isLoggedIn, LoginView $v, DateTimeView $dtv) {
+  public function renderLogIn() {
+    $form = $this->formTemplates->generateLoginFormHTML($this->session->getMessage());
+    $link = "<a href='?register=1'>Register a new user</a>";
+    $this->render($link, $form);
+  }
+
+  private function render(string $link, string $form){
     echo '<!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <title>Login Example</title>
-        </head>
-        <body>
-          <h1>Assignment 2</h1>
-          ' . $this->renderLink($register) . '
-          ' . $this->renderIsLoggedIn($isLoggedIn) . '
-          
-          <div class="container">
-              ' . $v->response($register, $isLoggedIn, $message) . '
-              
-              ' . $dtv->show() . '
-          </div>
-         </body>
-      </html>
-    ';
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Login Example</title>
+      </head>
+      <body>
+        <h1>Assignment 2</h1>
+        ' . $this->renderLink() . '
+        ' . $this->renderIsLoggedIn() . '
+        
+        <div class="container">
+            ' . $form . '
+            ' . $this->dateTimeView->show() . '
+        </div>
+       </body>
+    </html>
+  ';
   }
-  private function renderLink($register) {
-    if ($register) {
-      return '<a href="?">Back to login</a>';
+
+  private function renderLink() {
+   // $query_string = 'foo=' . urlencode($foo) . '&bar=' . urlencode($bar);
+    //echo '<a href="index?' . htmlentities("register=1") . '">';
+    var_dump($_SERVER['QUERY_STRING']);
+    var_dump($_REQUEST);
+    if (isset($_SERVER['QUERY_STRING']) ) {
+      if ($_SERVER['QUERY_STRING'] == "register") {
+        return '<a href="index.php?">Back to login</a>';
+      } else if (!$this->session->getLoggedIn()) {
+        return '<a href="index.php?' . htmlentities("register") . '">Register a new user</a>';
+      }
     }
-    else {
-      return '<a href="?register=1">Register a new user</a>';
-    }
+    return "";
   }
-  private function renderIsLoggedIn($isLoggedIn) {
-    if ($isLoggedIn) {
+  
+  private function renderIsLoggedIn() {
+    if ($this->session->getLoggedIn()) {
       return '<h2>Logged in</h2>';
     }
     else {
       return '<h2>Not logged in</h2>';
     }
   }
-
 
 }

@@ -10,7 +10,7 @@ class User {
     private $invalidCredentials;
     private $tryRegistrate;
 
-    public function __construct($userName, $password, $passwordRepeat, $tryRegistrate, $keepLogedIn) {
+    public function __construct(string $userName, string $password, string $passwordRepeat, bool $tryRegistrate, bool $keepLogedIn) {
         $this->storeUser = new StoreUser();
         if ($tryRegistrate) {
             $this->tryRegistrate($userName, $password, $passwordRepeat);
@@ -20,6 +20,7 @@ class User {
     }
     private function tryLogin($userName, $password, $keepLogedIn){
         if ($this->validateUsernameAndPasswordForLogin($userName, $password)) {
+            
             if ($this->storeUser->matchWithDB($userName, $password)) {
                 $this->invalidCredentials = false;
                 if ($keepLogedIn) {
@@ -91,7 +92,7 @@ class User {
             $this->invalidCredentials = true;
             return false;
         }
-        $invalidCredentials = false;
+        $this->invalidCredentials = false;
         return true;
     }
 

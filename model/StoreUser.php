@@ -14,7 +14,7 @@ class StoreUser {
         return $this->password;
     }
 
-    public function matchWithDB($userName, $password){
+    public function matchWithDB(string $userName, string $password){
         $data = $this->getDB();
         foreach($data as $userNamePassword)
         {

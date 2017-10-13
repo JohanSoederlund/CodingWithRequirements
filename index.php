@@ -13,7 +13,6 @@ ini_set('display_errors', 'On');
 
 
 try { 
-
     $router = new Router();
 } catch (Exception $e) {
     echo 'Caught exception: ',  $e->getMessage(), "\n";

@@ -1,6 +1,6 @@
 <?php
 
-require_once('view/LoginView.php');
+require_once('view/FormTemplates.php');
 require_once('view/DateTimeView.php');
 require_once('view/LayoutView.php');
 
@@ -9,76 +9,87 @@ require_once('model/User.php');
 
 
 class Router {
-    //TODO
-    //private static logedIn = 'Router::LogedIn'; //or true/false???
-    //logedIn == true, is actually a by-product of session-timeleft > 0;
-    private $loginView;
+    
+    private $formTemplates;
     private $dateTimeView;
     private $layoutView;
-    
-    private $User;
+    private $user;
     private $session;
-
    
-    function __construct() {
-        $this->render();
+    public function __construct() {
+        $this->session = new Session();
+        $this->formTemplates = new FormTemplates();
+        $this->dateTimeView = new DateTimeView();
+        $this->layoutView = new LayoutView($this->formTemplates, $this->dateTimeView, $this->session);
+        $this->route();
     }
 
-    private function render() {
-        $loginView = new LoginView();
-        $dateTimeView = new DateTimeView();
-        $layoutView = new LayoutView();
-        $session = new Session();
-        //session_set_cookie_params('o, /', 'http://johansoederlund.000webhostapp.com', isset($_SERVER["HTTP"]), true);
-        $message = "";
-        //TODO: change hardcoded, $loginView->getLogin ... 
-        if (!isset($_SESSION['loggedIn'])) {
-            $_SESSION['loggedIn'] = false;
-        } 
-        if (isset($_SERVER['QUERY_STRING'])) {
-            if ($_SERVER['QUERY_STRING'] === "register=1") {
-                $register = true;
-            } else {
-                $register = false;
+    private function route() {
+        /*
+        if (isset($_GET)) {
+            if ($this->session->getLoggedIn()) {
+                $this->layoutView->renderLogOut(); 
+            } elseif() {
+                $this->layoutView->renderLogOut(); 
             }
-        } else {
-            $register = false;
-        }
-         
-        if ($loginView->loginAttempted() && !$_SESSION['loggedIn']) {
-            $user = new User($loginView->getRequestUserName(), $loginView->getRequestPassword(), "", false, $loginView->keepLoggedIn());
-            if ($user->getInvalidCredentials()) {
-                $message = $user->getMessage();
-                $session->setUser($loginView->getRequestUserName());
-            } else {
-                $message = $user->getMessage();
-                $session->setLogedInUser($loginView->getRequestUserName(), $loginView->getRequestPassword(), $loginView->keepLoggedIn());
-            }
+
+        }*/
+
+        if ($this->formTemplates->loginAttempted() && !$this->session->getLoggedIn()) {
             
-        } elseif ($loginView->logoutAttempted() && $_SESSION['loggedIn']) {
-            //TODO: terminate user-part of session
-            $message = "Bye bye!";
-            $session->terminate();
-        } elseif ($loginView->registerAttempted()) {
-            //Todo try to register
-            $user = new User($loginView->getRequestRegisterUserName(), $loginView->getRequestRegisterPassword(), $loginView->getRequestRepeatPassword(), true, false);
-            var_dump($user->getInvalidCredentials());
-            var_dump($user->getMessage());
-            if ($user->getInvalidCredentials()) {
-                $message = $user->getMessage();
+            $this->user = new User($this->formTemplates->getRequestUserName(), $this->formTemplates->getRequestPassword(), "", false, $this->formTemplates->keepLoggedIn());
+            $this->session->setMessage($this->user->getMessage());
+            $this->session->setUser($this->formTemplates->getRequestUserName(), $this->formTemplates->getRequestPassword(), $this->formTemplates->keepLoggedIn(), $this->user->getInvalidCredentials());
+            //header('Location: /index.php');
+            if ($this->session->getLoggedIn()) {
+                $this->layoutView->renderLogOut(); 
             } else {
-                $message = $user->getMessage();
-                //change to param USER
-                $_SERVER['QUERY_STRING'] = "";
-                $register = false;
+                throw new Exception("INVALID login? why?");
             }
-        } 
-        else if ($session->isLogedInCookieValid() && !$_SESSION['loggedIn']) {
-            $session->logInWithCookies();
-            $message = "Welcome back with cookie";
+        } elseif ($this->formTemplates->logoutAttempted() && $this->session->getLoggedIn()) {
+            $this->session->terminate();
+            //header('Location: /index.php');
+            $this->layoutView->renderLogIn(); 
+        } elseif ($this->formTemplates->registerAttempted()) {
+            $this->user = new User($this->formTemplates->getRequestRegisterUserName(), $this->formTemplates->getRequestRegisterPassword(), $this->formTemplates->getRequestRepeatPassword(), true, false);
+            $this->session->setMessage($this->user->getMessage());
+            if (!$this->user->getInvalidCredentials()) {
+                //header('Location: /index.php');
+                $this->layoutView->renderLogIn();
+            } else {
+                //header("Location: /index.php?". $_SERVER['?register']);
+                $this->layoutView->renderRegister();
+            }
+        } elseif ($this->session->isLoggedInCookieValid() && !$this->session->getLoggedIn()) {
+            $this->session->logInWithCookies();
+            if ($this->session->getLoggedIn()){
+                //header('Location: /index.php');
+                $this->layoutView->renderLogOut();
+            } else {
+                throw new Exception("BAD COOKIES");
+            }
+        } elseif (isset($_SERVER['QUERY_STRING']) && $_SERVER['QUERY_STRING'] == "register"){
+            $this->layoutView->renderRegister();
+        } else {
+            //header('Location: /index.php');
+            $this->layoutView->renderLogin();
         }
         
-        $layoutView->render($message, $register, $_SESSION['loggedIn'], $loginView, $dateTimeView); 
+        
     }
-}
+/*
+    private function getQueryString() : string {
+        $this->queryStrings[0];
+        //explode("=", urldecode($_SERVER['QUERY_STRING']))
+        if (isset($_SERVER['QUERY_STRING']) ){
+            //var_dump($_SERVER['QUERY_STRING']);
+            foreach($this->queryStrings as $qs){
+                if ($qs == $_SERVER['QUERY_STRING']) {
+                    return $qs;
+                }
+            }
+        } 
+        return $this->queryStrings[0];
+    }*/
 
+}
