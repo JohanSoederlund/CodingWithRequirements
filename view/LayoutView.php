@@ -26,6 +26,7 @@ class LayoutView {
   public function renderLogOut() {
     $form = $this->loginView->generateLogoutButtonFormHTML($this->session->getMessage());
     $link = "";
+    var_dump($this->session->getMessage());
     $this->render($link, $form);
   }
   

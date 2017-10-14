@@ -5,11 +5,10 @@ class Session {
 
     public function __construct() {
         assert(session_status() != PHP_SESSION_NONE);
-        if ($this->isSessionLost()) {
-            $this->createSessionFromCookie();
-        }
-        
     }
+
+    
+
 
     public function getLoggedIn() : bool {
         if(!isset($_SESSION['loggedIn'])){
@@ -32,27 +31,22 @@ class Session {
         return $_SESSION['message'];
     }
 
-    public function isLoggedInCookieValid(){
-        if (isset($_COOKIE["loggedin"])) {
-            return $_COOKIE["loggedin"];
-        }
-        return false;
-    }
-
     private function isSessionLost() : bool {
-        if (!isset($_SESSION['loggedIn']) || !isset($_SESSION['UserName'])) {
+        if (!isset($_SESSION['loggedIn']) || !isset($_SESSION['UserName']) || !$_SESSION['loggedIn']) {
             return true;
         } 
-        return false;
+        return $_SESSION['loggedIn'];
     }
 
-    private function createSessionFromCookie(){
-        if (isset($_COOKIE["loggedin"]) && isset($_COOKIE["password"]) && isset($_COOKIE["username"])) {    
-            $this->setUser($_COOKIE["username"], $_COOKIE["password"], false, false);
-            $this->setMessage("Welcome back with cookie");
-        } else {
-            //Create empty user?
+    public function createSessionFromCookie() : bool {
+        if ($this->isSessionLost()) {
+            if (isset($_COOKIE["loggedin"]) && isset($_COOKIE["password"]) && isset($_COOKIE["username"])) {    
+                $this->setUser($_COOKIE["username"], $_COOKIE["password"], false, false);
+                $this->setMessage("Welcome back with cookie");
+                return true;
+            } 
         }
+        return false;
     }
 
     public function setMessage(string $message){
@@ -62,6 +56,7 @@ class Session {
     public function setUser(string $userName, string $password, bool $keepLoggedIn, bool $inValid){
         $_SESSION['UserName'] = $userName;
         if (!$inValid) {
+            //var_dump("asdasdda");
             $this->password = $password;
             $this->keepLoggedIn = $keepLoggedIn;
             $_SESSION['loggedIn'] = true;
@@ -72,6 +67,7 @@ class Session {
             }
         }
         else {
+            var_dump("asdasdda");
             $_SESSION['loggedIn'] = false;
         }
     }
