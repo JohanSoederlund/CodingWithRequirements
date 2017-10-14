@@ -15,7 +15,7 @@ class LoginView {
 	* @param $message, String output message
 	* @return  void, BUT writes to standard output!
 	*/
-	public function generateLogoutButtonFormHTML($message) {
+	public function generateLogoutButtonFormHTML(string $message) {
 		return '
 			<form  method="post" >
 				<p id="' . self::$messageId . '">' . $message .'</p>
@@ -24,7 +24,7 @@ class LoginView {
 		';
 	}
 
-	public function generateLoginFormHTML($message) : string {
+	public function generateLoginFormHTML(string $message, string $userName) : string {
 		return '
 			<form method="post" > 
 				<fieldset>
@@ -32,7 +32,7 @@ class LoginView {
 					<p id="' . self::$messageId . '">' . $message . '</p>
 					
 					<label for="' . self::$name . '">Username :</label>
-					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="" />
+					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="' . $userName . '" />
 
 					<label for="' . self::$password . '">Password :</label>
 					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
@@ -46,23 +46,23 @@ class LoginView {
 		';
 	}
 
-	public function keepLoggedIn() {
+	public function keepLoggedIn() : bool {
 		if (isset($_REQUEST[self::$keep])) {
 			return true;
 		}
 		return false;
 	}
 
-	public function loginAttempted() {
+	public function loginAttempted() : bool {
 		return isset($_REQUEST[self::$login]);
 	}
 
-	public function logoutAttempted() {
+	public function logoutAttempted() : bool {
 		return isset($_REQUEST[self::$logout]);
 	}
 
 	//CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
-	public function getRequestUserName(){
+	public function getRequestUserName() : string {
 		//RETURN REQUEST VARIABLE: USERNAME
 		if (isset ($_REQUEST[self::$name])){
 			return $_REQUEST[self::$name];
@@ -70,7 +70,7 @@ class LoginView {
 		throw new Exception("No request username available");
 	}
 
-	public function getRequestPassword(){
+	public function getRequestPassword() : string{
 		if (isset ($_REQUEST[self::$password])) {
 			return $_REQUEST[self::$password];
 		}

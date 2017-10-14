@@ -7,7 +7,7 @@ class RegisterView {
 	private static $repeatPassword = 'RegisterView::PasswordRepeat';
 	private static $registerMessageId = 'RegisterView::Message';
 
-	public function generateRegisterFormHTML($message) {
+	public function generateRegisterFormHTML(string $message, string $userName) : string {
 		return '
 			<form method="post" > 
 				<fieldset>
@@ -15,7 +15,7 @@ class RegisterView {
 					<p id="' . self::$registerMessageId . '">' . $message . '</p>
 					
 					<label for="' . self::$registerName . '">Username :</label>
-					<input type="text" id="' . self::$registerName . '" name="' . self::$registerName . '" value="" />
+					<input type="text" id="' . self::$registerName . '" name="' . self::$registerName . '" value="' . $userName . '" />
 
 					<label for="' . self::$registerPassword . '">Password :</label>
 					<input type="password" id="' . self::$registerPassword . '" name="' . self::$registerPassword . '" />
@@ -30,25 +30,25 @@ class RegisterView {
     }
 
 
-    public function registerAttempted() {
+    public function registerAttempted() : bool {
 		return isset($_REQUEST[self::$register]);
     }
     
-    public function getRequestRegisterPassword(){
+    public function getRequestRegisterPassword() : string{
 		if (isset ($_REQUEST[self::$registerPassword])) {
 			return $_REQUEST[self::$registerPassword];
 		}
 		throw new Exception("No request password available");
 	}
 
-	public function getRequestRegisterUserName(){
+	public function getRequestRegisterUserName() : string{
 		if (isset ($_REQUEST[self::$registerName])) {
 			return $_REQUEST[self::$registerName];
 		}
 		throw new Exception("No request password available");
 	}
 
-	public function getRequestRepeatPassword(){
+	public function getRequestRepeatPassword() : string{
 		if (isset ($_REQUEST[self::$repeatPassword])) {
 			return $_REQUEST[self::$repeatPassword];
 		}

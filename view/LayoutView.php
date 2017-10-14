@@ -16,7 +16,7 @@ class LayoutView {
   }
 
   public function renderRegister() {
-    $form = $this->registerView->generateRegisterFormHTML($this->session->getMessage());
+    $form = $this->registerView->generateRegisterFormHTML($this->session->getMessage(), $this->session->getUserName());
     // $query_string = 'foo=' . urlencode($foo) . '&bar=' . urlencode($bar);
     //echo '<a href="index?' . htmlentities("register=1") . '">';
     $link = '<a href="?">Back to login</a>';
@@ -30,7 +30,7 @@ class LayoutView {
   }
   
   public function renderLogIn() {
-    $form = $this->loginView->generateLoginFormHTML($this->session->getMessage());
+    $form = $this->loginView->generateLoginFormHTML($this->session->getMessage(), $this->session->getUserName());
     $link = "<a href='?register=1'>Register a new user</a>";
     $this->render($link, $form);
   }
