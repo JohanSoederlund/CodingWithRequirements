@@ -28,21 +28,6 @@ class Router {
     }
 
     private function route() {
-        $hash = password_hash("Password", PASSWORD_DEFAULT);
-        //$h = '$2y$10$RVWXXW3Hnx3662Jy9JdWFOxmnwG/0mbddAa7LVahXBRrsCVunNzrW';
-        var_dump($hash);
-        if (password_verify('Password', $hash)) {
-            echo 'Password is valid!';
-        } else {
-            echo 'Invalid password.';
-        }
-        $hash2 = '$2y$07$BCryptRequires22Chrcte/VlQH0piJtjXl.0t1XkA8pw9dMXTpOq';
-        
-        if (password_verify('rasmuslerdorf', $hash2)) {
-            echo 'Password is valid!';
-        } else {
-            echo 'Invalid password.';
-        }
         if ($this->loginView->loginAttempted()) {
             $this->routeLogIn();
         } elseif ($this->loginView->logoutAttempted()) {
@@ -67,14 +52,14 @@ class Router {
         } elseif($this->loginView->loginAttempted()) {
             $this->user = new User($this->loginView->getRequestUserName(), $this->loginView->getRequestPassword(), "", false, $this->loginView->keepLoggedIn());
             $this->session->setMessage($this->user->getMessage());
-            $this->session->setUser($this->loginView->getRequestUserName(), $this->loginView->getRequestPassword(), $this->loginView->keepLoggedIn(), $this->user->getInvalidCredentials());
+            $this->session->setUser($this->loginView->getRequestUserName(), $this->loginView->getCookiePassword(), $this->loginView->keepLoggedIn(), $this->user->getInvalidCredentials());
             if (!$this->user->getInvalidCredentials()) {
                 $this->layoutView->renderLogOut();
             } else {
                 $this->layoutView->renderLogIn();
             }
         } else {
-            $this->session->setMessage("");
+            //$this->session->setMessage("");
             $this->layoutView->renderLogIn();
         }
     }

@@ -3,16 +3,15 @@
 
 class StoreUser {
 
-    //private $userName = "Admin";
-    //private $password = "Password";
-/*
-    public function getUserName(){
-        return $this->userName;
+    public function registerToDB(string $userName, string $password) : bool{
+        if ($this->matchUserNameWithDB($userName)) {
+            return false;
+        }
+        file_put_contents('DB.txt', "\n", FILE_APPEND);
+        $data = sprintf("%s %s ", $userName, password_hash($password, PASSWORD_DEFAULT));
+        file_put_contents('DB.txt', $data, FILE_APPEND);
+        return true;
     }
-
-    public function getPassword(){
-        return $this->password;
-    }*/
 
     private function matchUserNameWithDB(string $userName) : bool{
         $data = $this->getUsersFromDB(true);
@@ -27,7 +26,6 @@ class StoreUser {
 
     public function matchUserWithDB(string $userName, string $password) : bool{
         $data = $this->getUsersFromDB(false);
-        
         foreach($data as $userNamePassword)
         {
             if($userName === $userNamePassword[0]){
@@ -51,16 +49,5 @@ class StoreUser {
         }
         return $userNamePassword;
     }
-
-    public function registerToDB(string $userName, string $password) : bool{
-        if ($this->matchUserNameWithDB($userName)) {
-            return false;
-        }
-        file_put_contents('DB.txt', "\n", FILE_APPEND);
-        $data = sprintf("%s %s ", $userName, password_hash($password, PASSWORD_DEFAULT));
-        file_put_contents('DB.txt', $data, FILE_APPEND);
-        return true;
-    }
-    
 
 }

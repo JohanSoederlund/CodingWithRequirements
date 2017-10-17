@@ -6,6 +6,7 @@ class LoginView {
 	private static $name = 'LoginView::UserName';
 	private static $password = 'LoginView::Password';
 	private static $cookieName = 'LoginView::CookieName';
+	//Move away from view and store in session
 	private static $cookiePassword = 'LoginView::CookiePassword';
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
@@ -77,19 +78,23 @@ class LoginView {
 		throw new Exception("No request username available");
 	}
 
+	public static function getCookiePassword(){
+		if(isset($_REQUEST[self::$cookiePassword])) {
+			return $_REQUEST[self::$cookiePassword];
+		}
+		return self::$cookiePassword;
+	}
+
 	
 /*
 getRequestCookieName() or getCookieName()
 	public function getRequestCookieName(){
 		return $_REQUEST[self::$cookieName];
 		return self::$cookieName;
-	}
-getRequestCookiePassword or getCookiePassword
-	public function getRequestCookiePassword(){
-		return $_REQUEST[self::$cookiePassword];
-		return self::$cookiePassword;
-	}
-	*/
+	}*/
+	
+	
+	
 	
 	
 }
