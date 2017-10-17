@@ -1,2 +1,3 @@
 
-Admin Password 
+Admin $2y$10$d7XCjv85B9JprHn/vrcgqO53sLVvCd9ZDkdglELnLrN8UKl99DkLy 
+Kalle $2y$10$PJCM2/BmD5PZd/sLQTxBDOtd1Ag0WZqliEHnosPqQLKCMrKikAhXm 

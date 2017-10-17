@@ -28,14 +28,21 @@ class Router {
     }
 
     private function route() {
-        /*
-        var_dump($this->loginView->loginAttempted());
-        var_dump($_REQUEST);
-        var_dump($_GET);
+        $hash = password_hash("Password", PASSWORD_DEFAULT);
+        //$h = '$2y$10$RVWXXW3Hnx3662Jy9JdWFOxmnwG/0mbddAa7LVahXBRrsCVunNzrW';
+        var_dump($hash);
+        if (password_verify('Password', $hash)) {
+            echo 'Password is valid!';
+        } else {
+            echo 'Invalid password.';
+        }
+        $hash2 = '$2y$07$BCryptRequires22Chrcte/VlQH0piJtjXl.0t1XkA8pw9dMXTpOq';
         
-        //$this->loginView->loginAttempted()
-        //!$this->session->isSessionLost()
-*/
+        if (password_verify('rasmuslerdorf', $hash2)) {
+            echo 'Password is valid!';
+        } else {
+            echo 'Invalid password.';
+        }
         if ($this->loginView->loginAttempted()) {
             $this->routeLogIn();
         } elseif ($this->loginView->logoutAttempted()) {

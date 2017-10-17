@@ -21,7 +21,7 @@ class User {
     private function tryLogin($userName, $password, $keepLogedIn){
         if ($this->validateUsernameAndPasswordForLogin($userName, $password)) {
             
-            if ($this->storeUser->matchWithDB($userName, $password)) {
+            if ($this->storeUser->matchUserWithDB($userName, $password)) {
                 $this->invalidCredentials = false;
                 if ($keepLogedIn) {
                     $this->message = "Welcome and you will be remembered";
@@ -38,7 +38,6 @@ class User {
 
     private function tryRegistrate($userName, $password, $passwordRepeat){
         if ($this->validateUsernameAndPasswordForRegister($userName, $password, $passwordRepeat)) {
-            // password_hash("rasmuslerdorf", PASSWORD_DEFAULT);
             if($this->storeUser->registerToDB($userName, $password)){
                 $this->invalidCredentials = false;
                 $this->message = "Registered new user.";
