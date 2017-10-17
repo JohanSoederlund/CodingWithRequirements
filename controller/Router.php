@@ -26,45 +26,16 @@ class Router {
         $this->layoutView = new LayoutView($this->loginView, $this->registerView, $this->dateTimeView, $this->session);
         $this->route();
     }
-    private function routeLogIn(){
-        if ($this->session->getLoggedIn()) {
-            $this->session->setMessage("");
-            $this->layoutView->renderLogOut();
-        } else {
-            $this->user = new User($this->loginView->getRequestUserName(), $this->loginView->getRequestPassword(), "", false, $this->loginView->keepLoggedIn());
-            $this->session->setMessage($this->user->getMessage());
-            $this->session->setUser($this->loginView->getRequestUserName(), $this->loginView->getRequestPassword(), $this->loginView->keepLoggedIn(), $this->user->getInvalidCredentials());
-            if (!$this->user->getInvalidCredentials()) {
-                $this->layoutView->renderLogOut();
-            } else {
-                $this->layoutView->renderLogIn();
-            }
-        }
-    }
-    private function routeLogOut(){
-        if ($this->session->getLoggedIn()){
-            $this->session->terminateSession();
-        } else {
-            $this->session->setMessage("");
-        }
-        $this->layoutView->renderLogin();
-    }
-    private function routeRegister(){
-        if (!$this->session->getLoggedIn()){
-            $this->user = new User($this->registerView->getRequestRegisterUserName(), $this->registerView->getRequestRegisterPassword(), $this->registerView->getRequestRepeatPassword(), true, false);
-            $this->session->setMessage($this->user->getMessage());
-            if ($this->user->getInvalidCredentials()) {
-                $this->layoutView->renderRegister();
-            } else {
-                $this->layoutView->renderLogIn();
-            }
-        }else {
-            $this->session->setMessage("");
-            $this->layoutView->renderLogOut();
-        }
-        
-    }
+
     private function route() {
+        /*
+        var_dump($this->loginView->loginAttempted());
+        var_dump($_REQUEST);
+        var_dump($_GET);
+        
+        //$this->loginView->loginAttempted()
+        //!$this->session->isSessionLost()
+*/
         if ($this->loginView->loginAttempted()) {
             $this->routeLogIn();
         } elseif ($this->loginView->logoutAttempted()) {
@@ -74,12 +45,61 @@ class Router {
         } elseif ($this->session->createSessionFromCookie()) {
             $this->layoutView->renderLogOut();
         } elseif (isset($_SERVER['QUERY_STRING']) && explode("=", $_SERVER['QUERY_STRING'])[0] == "register") {
-            $this->layoutView->renderRegister();
+            $this->routeRegister();
         } else {
-            $this->layoutView->renderLogIn();
+            //Is logged in and went to index
+            $this->routeLogIn();
         } 
 
     }
+
+    private function routeLogIn(){
+        if ($this->session->getLoggedIn()) {
+            $this->session->setMessage("");
+            $this->layoutView->renderLogOut();
+        } elseif($this->loginView->loginAttempted()) {
+            $this->user = new User($this->loginView->getRequestUserName(), $this->loginView->getRequestPassword(), "", false, $this->loginView->keepLoggedIn());
+            $this->session->setMessage($this->user->getMessage());
+            $this->session->setUser($this->loginView->getRequestUserName(), $this->loginView->getRequestPassword(), $this->loginView->keepLoggedIn(), $this->user->getInvalidCredentials());
+            if (!$this->user->getInvalidCredentials()) {
+                $this->layoutView->renderLogOut();
+            } else {
+                $this->layoutView->renderLogIn();
+            }
+        } else {
+            $this->session->setMessage("");
+            $this->layoutView->renderLogIn();
+        }
+    }
+
+    private function routeLogOut(){
+        if ($this->session->getLoggedIn()){
+            $this->session->terminateSession();
+        } else {
+            $this->session->setMessage("");
+        }
+        $this->layoutView->renderLogin();
+    }
+
+    private function routeRegister(){
+        if ($this->session->getLoggedIn()){
+            $this->routeLogIn();
+        }
+        elseif ($this->registerView->registerAttempted()) {
+            $this->user = new User($this->registerView->getRequestRegisterUserName(), $this->registerView->getRequestRegisterPassword(), $this->registerView->getRequestRepeatPassword(), true, false);
+            $this->session->setMessage($this->user->getMessage());
+            if ($this->user->getInvalidCredentials()) {
+                $this->layoutView->renderRegister();
+            } else {
+                $this->routeLogIn();
+            }
+        }else {
+            $this->session->setMessage("");
+            $this->layoutView->renderRegister();
+        }
+        
+    }
+
 
     
 

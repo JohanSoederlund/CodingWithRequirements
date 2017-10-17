@@ -35,8 +35,10 @@ class StoreUser {
         return $userNamePassword;
     }
 
+    
+
     public function registerToDB($userName, $password){
-        if ($this->matchWithDB($userName, $password)) {
+        if ($this->matchWithDB($userName)) {
             return false;
         }
         file_put_contents('DB.txt', "\n", FILE_APPEND);

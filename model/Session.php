@@ -5,23 +5,21 @@ class Session {
 
     public function __construct() {
         assert(session_status() != PHP_SESSION_NONE);
+        //$this->setUser("", "", false, true);
     }
 
-    
-
-
     public function getLoggedIn() : bool {
-        if(!isset($_SESSION['loggedIn'])){
-            $_SESSION['loggedIn'] = false;
+        if(!isset($_SESSION['loggedin'])){
+            $_SESSION['loggedin'] = false;
         }
-        return $_SESSION['loggedIn'];
+        return $_SESSION['loggedin'];
     }
 
     public function getUserName() : string{
-        if(!isset($_SESSION['UserName'])){
-            $_SESSION['UserName'] = "";
+        if(!isset($_SESSION['username'])){
+            $_SESSION['username'] = "";
         }
-        return $_SESSION['UserName'];
+        return $_SESSION['username'];
     }
 
     public function getMessage() : string{
@@ -31,11 +29,11 @@ class Session {
         return $_SESSION['message'];
     }
 
-    private function isSessionLost() : bool {
-        if (!isset($_SESSION['loggedIn']) || !isset($_SESSION['UserName']) || !$_SESSION['loggedIn']) {
+    public function isSessionLost() : bool {
+        if (!isset($_SESSION['loggedin']) || !isset($_SESSION['username']) || !$_SESSION['loggedin']) {
             return true;
         } 
-        return $_SESSION['loggedIn'];
+        return false;
     }
 
     public function createSessionFromCookie() : bool {
@@ -54,12 +52,11 @@ class Session {
     }
 
     public function setUser(string $userName, string $password, bool $keepLoggedIn, bool $inValid){
-        $_SESSION['UserName'] = $userName;
+        $_SESSION['username'] = $userName;
         if (!$inValid) {
-            //var_dump("asdasdda");
             $this->password = $password;
             $this->keepLoggedIn = $keepLoggedIn;
-            $_SESSION['loggedIn'] = true;
+            $_SESSION['loggedin'] = true;
             if ($keepLoggedIn) {
                 setcookie("username", $userName, time() + (86400 * 30), "/");
                 setcookie("password", $password, time() + (86400 * 30), "/");
@@ -67,8 +64,7 @@ class Session {
             }
         }
         else {
-            var_dump("asdasdda");
-            $_SESSION['loggedIn'] = false;
+            $_SESSION['loggedin'] = false;
         }
     }
 
@@ -95,11 +91,11 @@ class Session {
 
 /*
     public function getLoggedIn() : bool {
-        return $_SESSION['loggedIn'];
+        return $_SESSION['loggedin'];
     }
 
     public function getUserName() : string{
-        return $_SESSION['UserName'];
+        return $_SESSION['username'];
     }
 
     public function getMessage() : string{
