@@ -6,6 +6,7 @@ class Session {
     private static $whiteListCharacters = "/[^a-zA-Z0-9]/";
     private static $cookiePassword = 'LoginView::CookiePassword';
     private static $secret = 'secret123';
+    private static $browser = 'browser';
 
     public function __construct() {
         assert(session_status() != PHP_SESSION_NONE);
@@ -18,6 +19,7 @@ class Session {
 
     public function getLoggedIn() : bool {
         if(!isset($_SESSION['loggedin'])){
+            
             $_SESSION['loggedin'] = false;
         }
         return $_SESSION['loggedin'];
@@ -50,7 +52,7 @@ class Session {
             } else {
                 $this->setMessage("Wrong information in cookies");
             }
-        }
+        } 
         return false;
     }
 
@@ -61,12 +63,23 @@ class Session {
         return false;
     }
 
+    public function isBrowserManipulated() : bool {
+        $browserPreg = preg_replace($this->getWhiteListCharacters(), "", $_SERVER['HTTP_USER_AGENT']);
+        if(!isset($_COOKIE[self::$browser]) || !password_verify($browserPreg, $_COOKIE[self::$browser])) {
+            $this->terminateSession();
+            
+            $this->setMessage("Wrong browser");
+            return true;
+        } 
+        return false;
+    }
+
     private function isCookieManipulated() : bool {
         $passwordPreg = preg_replace($this->getWhiteListCharacters(), "", self::$secret);
-        if (isset($_COOKIE[self::$cookiePassword]) && password_verify($passwordPreg, $_COOKIE[self::$cookiePassword])) {
-            return false;
-        } else {
+        if (!isset($_COOKIE[self::$cookiePassword]) || !password_verify($passwordPreg, $_COOKIE[self::$cookiePassword])) {
             return true;
+        } else {
+            return false;
         }
     }
 
@@ -74,6 +87,9 @@ class Session {
         $_SESSION['username'] = $userName;
         if (!$inValid) {
             $_SESSION['loggedin'] = true;
+            $browserPreg = preg_replace($this->getWhiteListCharacters(), "", $_SERVER['HTTP_USER_AGENT']);
+            $browserHashed = password_hash($browserPreg, PASSWORD_DEFAULT);
+            setcookie(self::$browser, $browserHashed, time() + (86400 * 30), "/");
             if ($keepLoggedIn) {
                 setcookie("username", $userName, time() + (86400 * 30), "/");
                 setcookie("loggedin", $keepLoggedIn, time() + (86400 * 30), "/");
@@ -82,9 +98,7 @@ class Session {
                 $passwordPreg = preg_replace($this->getWhiteListCharacters(), "", self::$secret);
                 $passwordHashed = password_hash($passwordPreg, PASSWORD_DEFAULT);
                 setcookie(self::$cookiePassword, $passwordHashed, time() + (86400 * 30), "/");
-                //$browserPreg = preg_replace($this->getWhiteListCharacters(), "", $_SERVER['HTTP_USER_AGENT']);
-                //$browserHashed = password_hash($browserPreg, PASSWORD_DEFAULT);
-                //setcookie("secret", $browserHashed, time() + (86400 * 30), "/");
+                
             }
         }
         else {
@@ -96,6 +110,7 @@ class Session {
         $this->setMessage("Bye bye!");
         $this->setUser("", "", false, true);
         setcookie(self::$cookiePassword, "", time() - 3600, "/");
+        setcookie(self::$browser, "", time() - 3600, "/");
         setcookie("username", "", time() - 3600, "/");
         setcookie("loggedin", false, time() - 3600, "/");
     }

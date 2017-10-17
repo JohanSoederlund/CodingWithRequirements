@@ -17,25 +17,20 @@ class LayoutView {
 
   public function renderRegister() {
     $form = $this->registerView->generateRegisterFormHTML($this->session->getMessage(), $this->session->getUserName());
-    // $query_string = 'foo=' . urlencode($foo) . '&bar=' . urlencode($bar);
-    //echo '<a href="index?' . htmlentities("register=1") . '">';
-    $link = '<a href="?">Back to login</a>';
-    $this->render($link, $form);
+    $this->render($form);
   }
 
   public function renderLogOut() {
     $form = $this->loginView->generateLogoutButtonFormHTML($this->session->getMessage());
-    $link = "";
-    $this->render($link, $form);
+    $this->render($form);
   }
   
   public function renderLogIn() {
     $form = $this->loginView->generateLoginFormHTML($this->session->getMessage(), $this->session->getUserName());
-    $link = "<a href='?register=1'>Register a new user</a>";
-    $this->render($link, $form);
+    $this->render($form);
   }
 
-  private function render(string $link, string $form){
+  private function render(string $form){
     echo '<!DOCTYPE html>
     <html>
       <head>
@@ -57,12 +52,10 @@ class LayoutView {
   }
 
   private function renderLink() {
-    if (isset($_SERVER['QUERY_STRING']) ) {
-      if ($_SERVER['QUERY_STRING'] == "register") {
-        return '<a href="index.php?">Back to login</a>';
-      } else if (!$this->session->getLoggedIn()) {
-        return '<a href="index.php?' . htmlentities("register") . '">Register a new user</a>';
-      }
+    if (isset($_SERVER['QUERY_STRING']) && explode("=", $_SERVER['QUERY_STRING'])[0] == "register" ) {
+      return '<a href="index.php?">Back to login</a>';
+    } else if (!$this->session->getLoggedIn()) {
+      return '<a href="index.php?' . htmlentities("register") . '">Register a new user</a>';
     }
     return "";
   }

@@ -47,8 +47,12 @@ class Router {
 
     private function routeLogIn(){
         if ($this->session->getLoggedIn()) {
-            $this->session->setMessage("");
-            $this->layoutView->renderLogOut();
+            if ($this->session->isBrowserManipulated()) {
+                $this->layoutView->renderLogIn();
+            }else {
+                $this->session->setMessage("");
+                $this->layoutView->renderLogOut();
+            }
         } elseif($this->loginView->loginAttempted()) {
             $this->user = new User($this->loginView->getRequestUserName(), $this->loginView->getRequestPassword(), "", false, $this->loginView->keepLoggedIn());
             $this->session->setMessage($this->user->getMessage());
