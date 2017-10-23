@@ -1,18 +1,21 @@
 <?php
 
-require_once('model/Cookie.php');
-
 class SaveCookie {
 
 private static $pathToDir = "../databasecookies/";
 private static $fileEnd = ".txt";
+//Predetermined maximum cookie life
 private static $secondsValid = 600;
+//Allowed regex-chars, for security and stability
 private static $whiteListCharacters = "/[^a-zA-Z0-9_]/";
 
-    public function __construct() {
-        
-    }
+    public function __construct() {}
 
+    /**
+	* Modelling values to use when creating cookies and saves the data for revalidation 
+    * @param string $name - name of the cookie and used in randomize hashing of password cookie
+    * @return Cookie cookie - model object for cookie-values 
+	*/
     public function getNewCookie(string $name) : Cookie {
         $cookie = new Cookie($name, password_hash($name, PASSWORD_DEFAULT), self::$secondsValid);
 
@@ -24,7 +27,14 @@ private static $whiteListCharacters = "/[^a-zA-Z0-9_]/";
         return $cookie;
     }
 
-    public function validateCookie(string $password, string $name) {
+    /**
+    * Same operation on name param as in cookie creation, hash verification.
+    * @param string $password - hashed cookie password to verify
+    * @param string $name - name to validate against saved cookies
+    * @return bool true when matching a file in DB, password is verifyable with name param,
+    *               cookie timestamp is not outdated.
+    */
+    public function validateCookie(string $password, string $name) : bool {
         $fileName = preg_replace(self::$whiteListCharacters, "a", $name);
         $pathToFile = self::$pathToDir . $fileName . self::$fileEnd;
         

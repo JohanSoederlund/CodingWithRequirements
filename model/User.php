@@ -1,8 +1,5 @@
 <?php
 
-require_once('model/StoreUser.php');
-
-
 class User {
 
     private $storeUser;
@@ -10,6 +7,11 @@ class User {
     private $validCredentials;
     private static $whiteListCharacters = "/[^a-zA-Z0-9_]/";
 
+    /**
+    * Instatiates a model representation of a User
+    * Responsible for login and register validation
+    * @param Session $session - server-client session
+	*/
     public function __construct(Session $session) {
         $this->storeUser = new StoreUser();
         $this->session = $session;
@@ -19,6 +21,13 @@ class User {
         return $this->validCredentials;
     }
 
+    /**
+	* Character and string validation, if successful validates against database model
+    * @param string $userName - chosen username
+    * @param string $password - chosen password
+    * @param string $passwordRepeat - to avoid user input error
+    * @return bool $validCredentials only true when registration is successful
+	*/
     public function tryRegister(string $userName, string $password, string $passwordRepeat) : bool {
         $this->session->setUserName($userName);
         $this->validCredentials = false;
@@ -33,6 +42,9 @@ class User {
         return $this->validCredentials;
     }
 
+    /**
+	* Basic rule-set for strings
+	*/
     private function validateUsernameAndPasswordForRegistration(string $userName, string $password, string $repeatPassword) : bool{
         if (!is_string($userName) || strlen($userName) < 3) {
             $this->session->setMessage("Username has too few characters, at least 3 characters. ");
@@ -57,6 +69,12 @@ class User {
         return true;
     }
 
+    /**
+	* Character and string validation, if successful validates against database model
+    * @param string $userName - chosen username
+    * @param string $password - chosen password
+    * @return bool $validCredentials only true when login is successful
+	*/
     public function tryLogin(string $userName, string $password) : bool{
         $this->session->setUserName($userName);
         $this->validCredentials = false;
@@ -72,6 +90,9 @@ class User {
         return $this->validCredentials;
     }
 
+    /**
+	* Basic rule-set for strings
+	*/
     private function validateUsernameAndPasswordForLogin(string $userName, string $password) : bool{
         if (!is_string($userName) || $userName === '') {
             $this->session->setMessage("Username is missing");

@@ -1,22 +1,23 @@
 <?php
 
-
 class Session {
-
-    //private static $whiteListCharacters = "/[^a-zA-Z0-9]/";
-    //private static $cookiePassword = 'LoginView::CookiePassword';
-    //private static $secret = 'secret123';
-    //private static $browser = 'browser';
 
     private static $loggedIn = 'Session::LoggedIn';
 	private static $userName = 'Session::UserName';
 	private static $message = 'Session::Message';
 
+    /**
+	* Constructor initiates this Session object, some session validation.
+	*/
     public function __construct() {
         assert(session_status() != PHP_SESSION_NONE);
         $this->setMessage("");
     }
 
+    /**
+    * Below are getters and setters for server-client session
+    * Observe that several of the setters are public
+	*/
     public function getLoggedIn() : bool {
         if(!isset($_SESSION[self::$loggedIn])){
             $_SESSION[self::$loggedIn] = false;
@@ -55,6 +56,7 @@ class Session {
         $this->setLoggedIn(true);
     }
 
+    //used for logging out, cookies are unset in the view before returning form.
     public function terminate() {
         $this->setMessage("Bye bye!");
         $this->setUserName("");
