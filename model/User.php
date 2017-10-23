@@ -2,7 +2,7 @@
 
 class User {
 
-    private $storeUser;
+    private $saveUser;
     private $session;
     private $validCredentials;
     private static $whiteListCharacters = "/[^a-zA-Z0-9_]/";
@@ -13,7 +13,7 @@ class User {
     * @param Session $session - server-client session
 	*/
     public function __construct(Session $session) {
-        $this->storeUser = new StoreUser();
+        $this->saveUser = new SaveUser();
         $this->session = $session;
     }
 
@@ -32,7 +32,7 @@ class User {
         $this->session->setUserName($userName);
         $this->validCredentials = false;
         if ($this->validateUsernameAndPasswordForRegistration($userName, $password, $passwordRepeat)) {
-            if($this->storeUser->registerToDB($userName, $password)){
+            if($this->saveUser->registerToDB($userName, $password)){
                 $this->session->setMessage("Registered new user.");
                 $this->validCredentials = true;
             } else {
@@ -79,7 +79,7 @@ class User {
         $this->session->setUserName($userName);
         $this->validCredentials = false;
         if ($this->validateUsernameAndPasswordForLogin($userName, $password)) {
-            if ($this->storeUser->matchUserWithDB($userName, $password)) {
+            if ($this->saveUser->matchUserWithDB($userName, $password)) {
                 $this->validCredentials = true;
                 $this->session->setMessage("Welcome");
                 $this->session->setLoggedIn($this->validCredentials);

@@ -13,7 +13,7 @@ require_once('view/LayoutView.php');
 
 require_once('model/Session.php');
 require_once('model/User.php');
-require_once('model/StoreUser.php');
+require_once('model/SaveUser.php');
 require_once('model/SaveCookie.php');
 require_once('model/Cookie.php');
 

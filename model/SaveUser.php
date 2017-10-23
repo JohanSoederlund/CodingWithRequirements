@@ -1,6 +1,6 @@
 <?php
 
-class StoreUser {
+class SaveUser {
 
     private static $pathToDir = "../databaseusers/";
     private static $fileName = "users";
@@ -65,7 +65,6 @@ class StoreUser {
 	*/
     private function getUsersFromDB(bool $onlyUserName) : array{
         $pathToFile = self::$pathToDir . self::$fileName . self::$fileType;
-        var_dump($pathToFile);
         $users = file($pathToFile);
         $userNamePassword = array();
         foreach($users as $user)
