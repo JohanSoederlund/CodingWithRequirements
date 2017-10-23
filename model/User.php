@@ -46,24 +46,33 @@ class User {
 	* Basic rule-set for strings
 	*/
     private function validateUsernameAndPasswordForRegistration(string $userName, string $password, string $repeatPassword) : bool{
+        $messaage = "";
+        $valid = true;
         if (!is_string($userName) || strlen($userName) < 3) {
-            $this->session->setMessage("Username has too few characters, at least 3 characters. ");
-            return false;
+            $messaage .= "Username has too few characters, at least 3 characters. ";
+            $valid = false;
         } 
         if (!is_string($password) || strlen($password) < 6) {
-            $this->session->setMessage("Password has too few characters, at least 6 characters.");
-            return false;
+            $messaage .= "Password has too few characters, at least 6 characters.";
+            $valid = false;
+        }
+        if (!$valid) {
+            $this->session->setMessage($messaage);
+            return $valid;
         }
         if ($password !== $repeatPassword) {
             $this->session->setMessage("Passwords do not match.");
             return false;
         }
         if (strlen($userName) != strlen(preg_replace(self::$whiteListCharacters, "", $userName))) {
-            $this->session->setMessage("Illegal character(s) in username.");
+            //Adding strip_tags call due to automatic test demanding "<a>abc</a>" => "abc", and original algo gives "aabca"
+            $userName = strip_tags($userName);
+            $this->session->setUserName(preg_replace(self::$whiteListCharacters, "", $userName));
+            $this->session->setMessage("Username contains invalid characters.");
             return false;
         }
         if (strlen($password) != strlen(preg_replace(self::$whiteListCharacters, "", $password))) {
-            $this->session->setMessage("Illegal character(s) in password.");
+            $this->session->setMessage("Password contains invalid characters.");
             return false;
         }
         return true;

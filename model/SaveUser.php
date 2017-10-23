@@ -1,7 +1,8 @@
 <?php
 
 class SaveUser {
-
+    //000webhostpath
+    //private static $pathToDir = "/storage/ssd3/415/2957415/databaseusers/";
     private static $pathToDir = "../databaseusers/";
     private static $fileName = "users";
     private static $fileType = ".txt";
@@ -13,6 +14,11 @@ class SaveUser {
     * @return bool returns false if this username allready exist in db.
 	*/
     public function registerToDB(string $userName, string $password) : bool{
+        echo doc_root();
+        echo open_basedir();
+        
+        var_dump(__DIR__.pathinfo());
+        var_dump(__DIR__.parent);
         if ($this->matchUserNameWithDB($userName)) {
             return false;
         }

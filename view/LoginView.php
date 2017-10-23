@@ -153,7 +153,7 @@ class LoginView {
 	public function isCookieValid() : bool {
 		if ($this->isCookieSet()) { 
 			if ($this->saveCookie->validateCookie($_COOKIE[self::$cookiePassword], $_COOKIE[self::$cookieName])) {
-				$this->session->setMessage("Welcome back with cookies");
+				$this->session->setMessage("Welcome back with cookie");
 				$this->session->createFromCookie($_COOKIE[self::$cookieName]);
 				return true;
 			}
