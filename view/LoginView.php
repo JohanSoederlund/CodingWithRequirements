@@ -120,7 +120,7 @@ class LoginView {
 		if ($this->isCookieSet()) { 
 			if ($this->saveCookie->validateCookie($_COOKIE[self::$cookiePassword], $_COOKIE[self::$cookieName])) {
 				$this->session->setMessage("Welcome back with cookies");
-				$this->session->createFromCookie($_COOKIE[self::$cookiePassword]);
+				$this->session->createFromCookie($_COOKIE[self::$cookieName]);
 				return true;
 			}
 			$this->session->setMessage("Wrong information in cookies");

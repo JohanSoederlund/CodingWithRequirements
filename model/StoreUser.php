@@ -3,17 +3,18 @@
 
 class StoreUser {
 
-    private static $pathToDB = "../DB/users.txt";
+    private static $pathToDir = "../databaseusers/";
+    private static $fileName = "users";
     private static $fileType = ".txt";
-    
 
     public function registerToDB(string $userName, string $password) : bool{
         if ($this->matchUserNameWithDB($userName)) {
             return false;
         }
-        file_put_contents("../DB/users.txt", "\n", FILE_APPEND);
+        $pathToFile = self::$pathToDir . self::$fileName . self::$fileType;
+        file_put_contents($pathToFile, "\n", FILE_APPEND);
         $data = sprintf("%s %s ", $userName, password_hash($password, PASSWORD_DEFAULT));
-        file_put_contents("../DB/users.txt", $data, FILE_APPEND);
+        file_put_contents($pathToFile, $data, FILE_APPEND);
         return true;
     }
 
@@ -42,7 +43,9 @@ class StoreUser {
     }
 
     private function getUsersFromDB(bool $onlyUserName) : array{
-        $users = file("../DB/users.txt");
+        $pathToFile = self::$pathToDir . self::$fileName . self::$fileType;
+        var_dump($pathToFile);
+        $users = file($pathToFile);
         $userNamePassword = array();
         foreach($users as $user)
         {
