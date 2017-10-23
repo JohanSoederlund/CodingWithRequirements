@@ -3,118 +3,62 @@
 
 class Session {
 
-    private static $whiteListCharacters = "/[^a-zA-Z0-9]/";
-    private static $cookiePassword = 'LoginView::CookiePassword';
-    private static $secret = 'secret123';
-    private static $browser = 'browser';
+    //private static $whiteListCharacters = "/[^a-zA-Z0-9]/";
+    //private static $cookiePassword = 'LoginView::CookiePassword';
+    //private static $secret = 'secret123';
+    //private static $browser = 'browser';
+
+    private static $loggedIn = 'Session::LoggedIn';
+	private static $userName = 'Session::UserName';
+	private static $message = 'Session::Message';
 
     public function __construct() {
         assert(session_status() != PHP_SESSION_NONE);
-        //$this->setUser("", "", false, true);
-    }
-
-    private function getWhiteListCharacters() : string {
-        return self::$whiteListCharacters;
+        $this->setMessage("");
     }
 
     public function getLoggedIn() : bool {
-        if(!isset($_SESSION['loggedin'])){
-            
-            $_SESSION['loggedin'] = false;
+        if(!isset($_SESSION[self::$loggedIn])){
+            $_SESSION[self::$loggedIn] = false;
         }
-        return $_SESSION['loggedin'];
+        return $_SESSION[self::$loggedIn];
     }
 
-    public function getUserName() : string{
-        if(!isset($_SESSION['username'])){
-            $_SESSION['username'] = "";
-        }
-        return $_SESSION['username'];
+    public function setLoggedIn(bool $loggedIn) {
+        $_SESSION[self::$loggedIn] = $loggedIn;
     }
 
-    public function getMessage() : string{
-        if (!isset($_SESSION['message'])){
-            $_SESSION['message'] = "";
+    public function getUserName() : string {
+        if(!isset($_SESSION[self::$userName])){
+            $_SESSION[self::$userName] = "";
         }
-        return $_SESSION['message'];
+        return $_SESSION[self::$userName];
+    }
+
+    public function setUserName(string $userName) {
+        $_SESSION[self::$userName] = $userName;
+    }
+
+    public function getMessage() : string {
+        if (!isset($_SESSION[self::$message])){
+            $_SESSION[self::$message] = "";
+        }
+        return $_SESSION[self::$message];
     }
 
     public function setMessage(string $message){
-        $_SESSION['message'] = $message;
+        $_SESSION[self::$message] = $message;
     }
 
-    public function createSessionFromCookie() : bool {
-        if ($this->isSessionLost() && isset($_COOKIE["loggedin"]) && isset($_COOKIE["username"])) {
-            if (!$this->isCookieManipulated()) {   
-                $this->setUser($_COOKIE["username"], $_COOKIE[self::$cookiePassword], false, false);
-                $this->setMessage("Welcome back with cookie");
-                return true;
-            } else {
-                $this->setMessage("Wrong information in cookies");
-            }
-        } 
-        return false;
+    public function createFromCookie(string $userName) {
+        $this->setUserName($userName);
+        $this->setLoggedIn(true);
     }
 
-    private function isSessionLost() : bool {
-        if (!isset($_SESSION['loggedin']) || !isset($_SESSION['username']) || !$_SESSION['loggedin']) {
-            return true;
-        } 
-        return false;
-    }
-
-    public function isBrowserManipulated() : bool {
-        $browserPreg = preg_replace($this->getWhiteListCharacters(), "", $_SERVER['HTTP_USER_AGENT']);
-        if(!isset($_COOKIE[self::$browser]) || !password_verify($browserPreg, $_COOKIE[self::$browser])) {
-            $this->terminateSession();
-            
-            $this->setMessage("Wrong browser");
-            return true;
-        } 
-        return false;
-    }
-
-    private function isCookieManipulated() : bool {
-        $passwordPreg = preg_replace($this->getWhiteListCharacters(), "", self::$secret);
-        if (!isset($_COOKIE[self::$cookiePassword]) || !password_verify($passwordPreg, $_COOKIE[self::$cookiePassword])) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function setUser(string $userName, string $cookiePassword, bool $keepLoggedIn, bool $inValid){
-        $_SESSION['username'] = $userName;
-        if (!$inValid) {
-            $_SESSION['loggedin'] = true;
-            $browserPreg = preg_replace($this->getWhiteListCharacters(), "", $_SERVER['HTTP_USER_AGENT']);
-            $browserHashed = password_hash($browserPreg, PASSWORD_DEFAULT);
-            setcookie(self::$browser, $browserHashed, time() + (86400 * 30), "/");
-            if ($keepLoggedIn) {
-                setcookie("username", $userName, time() + (86400 * 30), "/");
-                setcookie("loggedin", $keepLoggedIn, time() + (86400 * 30), "/");
-                
-                //prepared to change to cookiePassword implementation if nececssary.
-                $passwordPreg = preg_replace($this->getWhiteListCharacters(), "", self::$secret);
-                $passwordHashed = password_hash($passwordPreg, PASSWORD_DEFAULT);
-                setcookie(self::$cookiePassword, $passwordHashed, time() + (86400 * 30), "/");
-                
-            }
-        }
-        else {
-            $_SESSION['loggedin'] = false;
-        }
-    }
-
-    public function terminateSession(){
+    public function terminate() {
         $this->setMessage("Bye bye!");
-        $this->setUser("", "", false, true);
-        setcookie(self::$cookiePassword, "", time() - 3600, "/");
-        setcookie(self::$browser, "", time() - 3600, "/");
-        setcookie("username", "", time() - 3600, "/");
-        setcookie("loggedin", false, time() - 3600, "/");
+        $this->setUserName("");
+        $this->setLoggedIn(false);
     }
-
-
 
 }

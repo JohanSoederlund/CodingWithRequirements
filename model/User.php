@@ -6,98 +6,81 @@ require_once('model/StoreUser.php');
 class User {
 
     private $storeUser;
-    private $message = "";
-    private $invalidCredentials;
+    private $session;
+    private $validCredentials;
     private static $whiteListCharacters = "/[^a-zA-Z0-9_]/";
 
-    public function __construct(string $userName, string $password, string $passwordRepeat, bool $tryRegistrate, bool $keepLogedIn) {
+    public function __construct(Session $session) {
         $this->storeUser = new StoreUser();
-        if ($tryRegistrate) {
-            $this->tryRegistrate($userName, $password, $passwordRepeat);
-        } else {
-            $this->tryLogin($userName, $password, $keepLogedIn);
-        }
+        $this->session = $session;
     }
 
-    public function getMessage() : string {
-        return $this->message;
+    public function getvalidCredentials() : bool {
+        return $this->validCredentials;
     }
 
-    public function getInvalidCredentials() : bool {
-        return $this->invalidCredentials;
-    }
-
-    private function tryRegistrate(string $userName, string $password, string $passwordRepeat){
+    public function tryRegister(string $userName, string $password, string $passwordRepeat) : bool {
+        $this->session->setUserName($userName);
+        $this->validCredentials = false;
         if ($this->validateUsernameAndPasswordForRegistration($userName, $password, $passwordRepeat)) {
             if($this->storeUser->registerToDB($userName, $password)){
-                $this->invalidCredentials = false;
-                $this->message = "Registered new user.";
+                $this->session->setMessage("Registered new user.");
+                $this->validCredentials = true;
             } else {
-                $this->invalidCredentials = true;
-                $this->message = "User exists, pick another username.";
+                $this->session->setMessage("User exists, pick another username.");
             }
         } 
+        return $this->validCredentials;
     }
 
     private function validateUsernameAndPasswordForRegistration(string $userName, string $password, string $repeatPassword) : bool{
         if (!is_string($userName) || strlen($userName) < 3) {
-            $this->message = "Username has too few characters, at least 3 characters. ";
-            $this->invalidCredentials = true;
+            $this->session->setMessage("Username has too few characters, at least 3 characters. ");
             return false;
         } 
         if (!is_string($password) || strlen($password) < 6) {
-            $this->message = "Password has too few characters, at least 6 characters.";
-            $this->invalidCredentials = true;
+            $this->session->setMessage("Password has too few characters, at least 6 characters.");
             return false;
         }
         if ($password !== $repeatPassword) {
-            $this->message = "Passwords do not match.";
-            $this->invalidCredentials = true;
+            $this->session->setMessage("Passwords do not match.");
             return false;
         }
         if (strlen($userName) != strlen(preg_replace(self::$whiteListCharacters, "", $userName))) {
-            $this->message = "Illegal character(s) in username.";
-            $this->invalidCredentials = true;
+            $this->session->setMessage("Illegal character(s) in username.");
             return false;
         }
-        if (strlen($userName) != strlen(preg_replace(self::$whiteListCharacters, "", $password))) {
-            $this->message = "Illegal character(s) in password.";
-            $this->invalidCredentials = true;
+        if (strlen($password) != strlen(preg_replace(self::$whiteListCharacters, "", $password))) {
+            $this->session->setMessage("Illegal character(s) in password.");
             return false;
         }
-        $this->invalidCredentials = false;
         return true;
     }
 
-    private function tryLogin(string $userName, string $password, bool $keepLogedIn){
+    public function tryLogin(string $userName, string $password) : bool{
+        $this->session->setUserName($userName);
+        $this->validCredentials = false;
         if ($this->validateUsernameAndPasswordForLogin($userName, $password)) {
-            
             if ($this->storeUser->matchUserWithDB($userName, $password)) {
-                $this->invalidCredentials = false;
-                if ($keepLogedIn) {
-                    $this->message = "Welcome and you will be remembered";
-                } else {
-                    $this->message = "Welcome";
-                }
+                $this->validCredentials = true;
+                $this->session->setMessage("Welcome");
+                $this->session->setLoggedIn($this->validCredentials);
             } else {
-                $this->invalidCredentials = true;
-                $this->message = "Wrong name or password";
+                $this->session->setMessage("Wrong name or password");
             }
         }
+        return $this->validCredentials;
     }
 
     private function validateUsernameAndPasswordForLogin(string $userName, string $password) : bool{
         if (!is_string($userName) || $userName === '') {
-            $this->message = "Username is missing";
-            $this->invalidCredentials = true;
+            $this->session->setMessage("Username is missing");
             return false;
         } 
         if (!is_string($password) || $password === '') {
-            $this->message = "Password is missing";
-            $this->invalidCredentials = true;
+            $this->session->setMessage("Password is missing");
             return false;
         }
-        $this->invalidCredentials = false;
         return true;
     }
 

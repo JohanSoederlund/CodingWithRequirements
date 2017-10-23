@@ -10,93 +10,90 @@ require_once('model/User.php');
 
 
 class Router {
+
+    private $session;
+    private $user;
     
     private $loginView;
     private $registerView;
     private $dateTimeView;
     private $layoutView;
-    private $user;
-    private $session;
    
     public function __construct() {
         $this->session = new Session();
-        $this->loginView = new LoginView();
-        $this->registerView = new RegisterView();
+        $this->user = new User($this->session);
+        $this->loginView = new LoginView($this->session);
+        $this->registerView = new RegisterView($this->session);
         $this->dateTimeView = new DateTimeView();
         $this->layoutView = new LayoutView($this->loginView, $this->registerView, $this->dateTimeView, $this->session);
         $this->route();
     }
 
     private function route() {
-        if ($this->loginView->loginAttempted()) {
+        //check typeof return value from get session in session
+        if (!$this->session->getLoggedIn() && $this->loginView->isCookieValid()) {
             $this->routeLogIn();
-        } elseif ($this->loginView->logoutAttempted()) {
+        } elseif($this->loginView->isLoginAttempted()) {
+            $this->routeLogIn();
+        } elseif($this->loginView->isLogoutAttempted()) {
             $this->routeLogOut();
-        } elseif ($this->registerView->registerAttempted()) {
+        } elseif($this->registerView->registerAttempted()) {
             $this->routeRegister();
-        } elseif ($this->session->createSessionFromCookie()) {
+        } elseif ($this->session->getLoggedIn()){
             $this->layoutView->renderLogOut();
-        } elseif (isset($_SERVER['QUERY_STRING']) && explode("=", $_SERVER['QUERY_STRING'])[0] == "register") {
-            $this->routeRegister();
+        } elseif($this->isQueryStringRegister()) {
+            $this->layoutView->renderRegister();
         } else {
-            //Is logged in and went to index
-            $this->routeLogIn();
-        } 
-
-    }
-
-    private function routeLogIn(){
-        if ($this->session->getLoggedIn()) {
-            if ($this->session->isBrowserManipulated()) {
-                $this->layoutView->renderLogIn();
-            }else {
-                $this->session->setMessage("");
-                $this->layoutView->renderLogOut();
-            }
-        } elseif($this->loginView->loginAttempted()) {
-            $this->user = new User($this->loginView->getRequestUserName(), $this->loginView->getRequestPassword(), "", false, $this->loginView->keepLoggedIn());
-            $this->session->setMessage($this->user->getMessage());
-            $this->session->setUser($this->loginView->getRequestUserName(), $this->loginView->getCookiePassword(), $this->loginView->keepLoggedIn(), $this->user->getInvalidCredentials());
-            if (!$this->user->getInvalidCredentials()) {
-                $this->layoutView->renderLogOut();
-            } else {
-                $this->layoutView->renderLogIn();
-            }
-        } else {
-            //$this->session->setMessage("");
             $this->layoutView->renderLogIn();
         }
     }
 
-    private function routeLogOut(){
-        if ($this->session->getLoggedIn()){
-            $this->session->terminateSession();
+    private function routeLogIn() {
+        if ($this->session->getLoggedIn()) {
+            $this->layoutView->renderLogOut();
+            //header("Location: http://localhost:8080/index.php?");
+            //die();
+        } elseif ($this->user->tryLogin($this->loginView->getRequestUserName(), $this->loginView->getRequestPassword())){
+            $this->layoutView->renderLogOut();
+            //header("Location: http://localhost:8080/index.php?");
+            //die();
         } else {
-            $this->session->setMessage("");
+            $this->layoutView->renderLogIn();
+            //header("Location: http://localhost:8080/index.php?");
+            //die();
         }
+    }
+
+    private function routeLogOut() {
+        if ($this->session->getLoggedIn()){
+            $this->session->terminate();
+        } 
         $this->layoutView->renderLogin();
+        //header("Location: http://localhost:8080/index.php?");
+        //die();
     }
 
     private function routeRegister(){
-        if ($this->session->getLoggedIn()){
-            $this->routeLogIn();
-        }
-        elseif ($this->registerView->registerAttempted()) {
-            $this->user = new User($this->registerView->getRequestRegisterUserName(), $this->registerView->getRequestRegisterPassword(), $this->registerView->getRequestRepeatPassword(), true, false);
-            $this->session->setMessage($this->user->getMessage());
-            if ($this->user->getInvalidCredentials()) {
-                $this->layoutView->renderRegister();
-            } else {
-                $this->routeLogIn();
-            }
-        }else {
-            $this->session->setMessage("");
+        if ($this->session->getLoggedIn()) {
+            $this->layoutView->renderLogOut();
+            //header("Location: http://localhost:8080/index.php?");
+            //die();
+        } elseif ($this->user->tryRegister($this->registerView->getRequestRegisterUserName(), $this->registerView->getRequestRegisterPassword(), 
+                        $this->registerView->getRequestRepeatPassword())) {
+            $this->layoutView->renderLogIn();
+            //header("Location: http://localhost:8080/index.php?");
+            //die();
+        } else {
             $this->layoutView->renderRegister();
+            //header("Location: http://localhost:8080/index.php?register");
+            //die();
         }
-        
     }
 
-
-    
+    private function isQueryStringRegister() : bool {
+        return (isset($_SERVER['QUERY_STRING']) && explode("=", $_SERVER['QUERY_STRING'])[0] == "register");
+    }
 
 }
+
+

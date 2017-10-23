@@ -1,21 +1,31 @@
 <?php
 
 class RegisterView {
+	private $session;
+
 	private static $register = 'RegisterView::Register';
 	private static $registerName = 'RegisterView::UserName';
 	private static $registerPassword = 'RegisterView::Password';
 	private static $repeatPassword = 'RegisterView::PasswordRepeat';
 	private static $registerMessageId = 'RegisterView::Message';
 
-	public function generateRegisterFormHTML(string $message, string $userName) : string {
+	public function __construct(Session $session) {
+		$this->session = $session;
+	}
+
+	public function response() {
+		return $this->generateRegisterFormHTML();
+	}
+
+	public function generateRegisterFormHTML() : string {
 		return '
 			<form method="post" > 
 				<fieldset>
 					<legend>Register a new user - Write username and password</legend>
-					<p id="' . self::$registerMessageId . '">' . $message . '</p>
+					<p id="' . self::$registerMessageId . '">' . $this->session->getMessage(). '</p>
 					
 					<label for="' . self::$registerName . '">Username :</label>
-					<input type="text" id="' . self::$registerName . '" name="' . self::$registerName . '" value="' . $userName . '" />
+					<input type="text" id="' . self::$registerName . '" name="' . self::$registerName . '" value="' . $this->session->getUserName() . '" />
 
 					<label for="' . self::$registerPassword . '">Password :</label>
 					<input type="password" id="' . self::$registerPassword . '" name="' . self::$registerPassword . '" />
@@ -38,21 +48,21 @@ class RegisterView {
 		if (isset ($_REQUEST[self::$registerPassword])) {
 			return $_REQUEST[self::$registerPassword];
 		}
-		throw new Exception("No request password available");
+		return "";
 	}
 
 	public function getRequestRegisterUserName() : string{
 		if (isset ($_REQUEST[self::$registerName])) {
 			return $_REQUEST[self::$registerName];
 		}
-		throw new Exception("No request password available");
+		return "";
 	}
 
 	public function getRequestRepeatPassword() : string{
 		if (isset ($_REQUEST[self::$repeatPassword])) {
 			return $_REQUEST[self::$repeatPassword];
 		}
-		throw new Exception("No request password available");
+		return "";
 	}
     
 }

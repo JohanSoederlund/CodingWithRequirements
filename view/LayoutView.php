@@ -6,6 +6,7 @@ class LayoutView {
   private $loginView;
   private $registerView;
   private $dateTimeView;
+
   private $session;
 
   public function __construct (LoginView $loginView, RegisterView $registerView, DateTimeView $dateTimeView, Session $session) {
@@ -16,21 +17,24 @@ class LayoutView {
   }
 
   public function renderRegister() {
-    $form = $this->registerView->generateRegisterFormHTML($this->session->getMessage(), $this->session->getUserName());
-    $this->render($form);
+    $form = $this->registerView->response();
+    $link = '<a href="?">Back to login</a>';
+    $this->render($form, $link);
   }
 
   public function renderLogOut() {
-    $form = $this->loginView->generateLogoutButtonFormHTML($this->session->getMessage());
-    $this->render($form);
+    $form = $this->loginView->response();
+    $link = '';
+    $this->render($form, $link);
   }
   
   public function renderLogIn() {
-    $form = $this->loginView->generateLoginFormHTML($this->session->getMessage(), $this->session->getUserName());
-    $this->render($form);
+    $form = $this->loginView->response();
+    $link = '<a href="?register">Register a new user</a>';
+    $this->render($form, $link);
   }
 
-  private function render(string $form){
+  private function render(string $form, string $link){
     echo '<!DOCTYPE html>
     <html>
       <head>
@@ -39,7 +43,7 @@ class LayoutView {
       </head>
       <body>
         <h1>Assignment 2</h1>
-        ' . $this->renderLink() . '
+        ' . $link . '
         ' . $this->renderIsLoggedIn() . '
         
         <div class="container">
@@ -51,16 +55,7 @@ class LayoutView {
   ';
   }
 
-  private function renderLink() {
-    if (isset($_SERVER['QUERY_STRING']) && explode("=", $_SERVER['QUERY_STRING'])[0] == "register" ) {
-      return '<a href="index.php?">Back to login</a>';
-    } else if (!$this->session->getLoggedIn()) {
-      return '<a href="index.php?' . htmlentities("register") . '">Register a new user</a>';
-    }
-    return "";
-  }
-  
-  private function renderIsLoggedIn() {
+  private function renderIsLoggedIn() : string {
     if ($this->session->getLoggedIn()) {
       return '<h2>Logged in</h2>';
     }
