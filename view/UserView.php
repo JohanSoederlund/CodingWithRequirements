@@ -18,8 +18,7 @@ class UserView
 
 	private function formatLiElements() : string {
 		$users = $this->user->getVisibleUsers();
-		$li = '<h7 style="color:blue;">ONLINE NOW</h7>';
-		//$li = '<h7 style="color:blue;">ONLINE NOW</h7>';
+		$li = '<h6 style="color:blue;">ONLINE NOW</h6>';
 		$i=0;
 		foreach	($users as $username) {
 			$i++;

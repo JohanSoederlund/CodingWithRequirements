@@ -30,5 +30,4 @@ class Cookie {
         return $this->timeValid;
     }
 
-
 }

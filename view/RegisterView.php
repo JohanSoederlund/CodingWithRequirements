@@ -51,7 +51,6 @@ class RegisterView {
 		';
     }
 
-
 	/**
 	 * Returns true if last user request is a submit of the register-form
 	 * @return bool 

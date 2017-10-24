@@ -1,8 +1,6 @@
 <?php
 
 class SaveCookie {
-//000webhostpath
-//private static $pathToDir = "/storage/ssd3/415/2957415/databasecookies/";
 private static $pathToDir = "../databasecookies/";
 private static $fileEnd = ".txt";
 //Predetermined maximum cookie life

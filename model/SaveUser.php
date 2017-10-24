@@ -1,8 +1,6 @@
 <?php
 
 class SaveUser {
-    //000webhostpath
-    //private static $pathToDir = "/storage/ssd3/415/2957415/databaseusers/";
     private static $pathToDir = "../databaseusers/";
     private static $fileName = "users";
     private static $fileType = ".txt";
