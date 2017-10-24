@@ -4,7 +4,8 @@ class Session {
 
     private static $loggedIn = 'Session::LoggedIn';
 	private static $userName = 'Session::UserName';
-	private static $message = 'Session::Message';
+    private static $message = 'Session::Message';
+    private static $hidden = 'Session::Hidden';
 
     /**
 	* Constructor initiates this Session object, some session validation.
@@ -49,6 +50,19 @@ class Session {
 
     public function setMessage(string $message){
         $_SESSION[self::$message] = $message;
+    }
+    /**
+    * See extra use cases for usage
+	*/
+    public function setHidden(bool $hidden){
+        $_SESSION[self::$hidden] = $hidden;
+    }
+
+    public function getHidden(){
+        if(!isset($_SESSION[self::$hidden])){
+            $_SESSION[self::$hidden] = false;
+        }
+        return $_SESSION[self::$hidden];
     }
 
     public function createFromCookie(string $userName) {

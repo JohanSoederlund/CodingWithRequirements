@@ -84,7 +84,7 @@ class User {
     * @param string $password - chosen password
     * @return bool $validCredentials only true when login is successful
 	*/
-    public function tryLogin(string $userName, string $password) : bool{
+    public function tryLogin(string $userName, string $password, bool $hidden) : bool{
         $this->session->setUserName($userName);
         $this->validCredentials = false;
         if ($this->validateUsernameAndPasswordForLogin($userName, $password)) {
@@ -92,6 +92,7 @@ class User {
                 $this->validCredentials = true;
                 $this->session->setMessage("Welcome");
                 $this->session->setLoggedIn($this->validCredentials);
+                $this->setHidden($hidden);
             } else {
                 $this->session->setMessage("Wrong name or password");
             }
@@ -113,5 +114,33 @@ class User {
         }
         return true;
     }
+    
+    /**
+	* Save username to shared database if user wants to be visible and sets session variable for visibility
+    * @param bool $hidden - representation of user visibility towards other users
+	*/
+    private function setHidden(bool $hidden) {
+        if ($this->session->getLoggedIn() && !$hidden) {
+            $this->saveUser->saveToVisibleDB($this->session->getUserName());
+        }
+        $this->session->setHidden($hidden);
+    }
 
+    /**
+    * @return array All current usernames strings that is set to be visible and are logged in.
+	*/
+    public function getVisibleUsers() : array {
+        if ($this->session->getLoggedIn() && !$this->session->getHidden()) {
+            return $this->saveUser->getVisibleUsersFromDB();
+        } 
+        throw new Exception("Access to logged in users denied");
+    }
+
+    /**
+	* Remove this user from visibility file
+	*/
+    public function deleteToVisibleDB() {
+        $this->saveUser->deleteToVisibleDB($this->session->getUserName());
+    }
+    
 }

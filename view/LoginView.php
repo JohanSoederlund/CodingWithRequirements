@@ -10,6 +10,7 @@ class LoginView {
 	private static $cookiePassword = "LoginView::CookiePassword";
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
+	private static $hidden = 'LoginView::Hidden';
 
 	private $session;
 	private $saveCookie;
@@ -72,11 +73,22 @@ class LoginView {
 
 					<label for="' . self::$keep . '">Keep me logged in  :</label>
 					<input type="checkbox" id="' . self::$keep . '" name="' . self::$keep . '" />
+
+					<label for="' . self::$hidden . '">Stay hidden  :</label>
+					<input type="checkbox" id="' . self::$hidden . '" name="' . self::$hidden . '" />
 					
 					<input type="submit" name="' . self::$login . '" value="login" />
 				</fieldset>
 			</form>
 		';
+	}
+
+	/**
+	 * Returns user-toggle for hidden logged in, not visible to other users
+	 * @return bool
+	 */
+	public function isHiddenSet() : bool {
+		return (isset($_REQUEST[self::$hidden])); 
 	}
 
 	/**

@@ -6,6 +6,7 @@ class SaveUser {
     private static $pathToDir = "../databaseusers/";
     private static $fileName = "users";
     private static $fileType = ".txt";
+    private static $fileNameVisible = "visible";
 
     /**
 	* Saves Username and hashed password in single newlines divided by a space. 
@@ -14,11 +15,6 @@ class SaveUser {
     * @return bool returns false if this username allready exist in db.
 	*/
     public function registerToDB(string $userName, string $password) : bool{
-        echo doc_root();
-        echo open_basedir();
-        
-        var_dump(__DIR__.pathinfo());
-        var_dump(__DIR__.parent);
         if ($this->matchUserNameWithDB($userName)) {
             return false;
         }
@@ -83,4 +79,53 @@ class SaveUser {
         return $userNamePassword;
     }
 
+    /**
+	* Saves a username to file
+    * @param string $userName
+	*/
+    public function saveToVisibleDB(string $userName) {
+        $pathToFile = self::$pathToDir . self::$fileNameVisible . self::$fileType;
+        $data = sprintf("%s ", $userName);
+        file_put_contents($pathToFile, $data, FILE_APPEND);
+    }
+
+     /**
+	* Get database used for username sharing among clients
+    * @param string $userName
+	*/
+    public function getVisibleUsersFromDB() : array {
+        $pathToFile = self::$pathToDir . self::$fileNameVisible . self::$fileType;
+        $users = file($pathToFile);
+        $usernames = array();
+        //var_dump($users);
+        foreach($users as $user)
+        {
+            array_push($usernames, explode(' ', $user));
+        }
+        return $usernames[0];
+    }
+
+    /**
+	* Delete matching string to param from visible-database
+    * @param string $userName
+	*/
+    public function deleteToVisibleDB(string $userName) {
+        $pathToFile = self::$pathToDir . self::$fileNameVisible . self::$fileType;
+        $users = $this->getVisibleUsersFromDB();
+        file_put_contents($pathToFile, "");
+        foreach($users as $user)
+        {
+            if ($user !== $userName){
+                $data = sprintf("%s ", $user);
+                file_put_contents($pathToFile, $data, FILE_APPEND);
+            } 
+        }
+    }
+
 }
+
+
+
+
+
+
